@@ -60,6 +60,6 @@ public class AIPuppeteer : MonoBehaviour {
     }
 
     public float NextTime() {
-        return (Random.Range(90, 180) + (10 * pressure)) / 10.0f;
+        return (Random.Range(20, 120) + (10 * pressure)) / 10.0f;
     }
 }
