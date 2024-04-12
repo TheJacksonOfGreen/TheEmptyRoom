@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class AIPuppeteer : MonoBehaviour {
     private List<AIPuppet> puppets;
     private List<AISpot> spots;
+    private int pressure;
 
     // Start is called before the first frame update
     void Start() {
@@ -15,6 +16,7 @@ public class AIPuppeteer : MonoBehaviour {
         foreach (AIPuppet p in puppets) {
             p.HardReset();
         }
+        pressure = 10;
     }
 
     // Update is called once per frame
@@ -26,9 +28,17 @@ public class AIPuppeteer : MonoBehaviour {
         //Debug.Log(p.gameObject.name + (movingUp ? " ADVANCING" : " RETREATING"));
         List<AISpot> candidates = spots.Where(a => !a.occupied() && a.gameObject.name != s.gameObject.name).ToList();
         if (movingUp) {
+            pressure -= Random.Range(0, 1);
             candidates = candidates.Where(a => a.mvalue() <= s.mvalue()).OrderByDescending(a => a.mvalue()).Reverse().ToList();
         } else {
+            pressure += Random.Range(0, 1);
             candidates = candidates.Where(a => a.mvalue() >= s.mvalue() && !a.critical).OrderByDescending(a => a.mvalue()).ToList();
+        }
+        if (pressure < 0) {
+            pressure = 0;
+        }
+        if (pressure > 20) {
+            pressure = 20;
         }
         candidates = candidates.OrderByDescending(a => Vector3.Distance(s.transform.position, a.transform.position)).Reverse().ToList();
         //Debug.Log(p.gameObject.name + " FOUND " + candidates.Count + " CANDIDATES");
@@ -50,6 +60,6 @@ public class AIPuppeteer : MonoBehaviour {
     }
 
     public float NextTime() {
-        return Random.Range(90, 180) / 10.0f;
+        return (Random.Range(90, 180) + (10 * pressure)) / 10.0f;
     }
 }
